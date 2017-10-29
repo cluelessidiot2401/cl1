@@ -1,0 +1,10 @@
+*{
+	text-align: center;
+	align-items: center;
+}
+h1{
+	font: 16px solid blue;
+}
+tr,td{
+	border: 1px solid red;
+}

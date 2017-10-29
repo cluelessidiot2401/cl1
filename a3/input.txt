@@ -1,0 +1,7 @@
+object BinarySearch
+{
+	def main(args:Array[String])
+	{
+		println("Hello world in Scala!");
+	}
+}
