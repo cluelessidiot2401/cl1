@@ -25,7 +25,7 @@ hadoop dfs -rmdir /user/root/studlog
 
 printf "\n\nStart Import Job\n\n"
 
-sqoop import --connect jdbc:mysql://10.10.15.13/test --table studlog --m 1 --driver com.mysql.jdbc.Driver --username sql1 --password sql1
+sqoop import --username sql1 --password sql1 --connect jdbc:mysql://10.10.15.13/test --table studlog --m 1 #--driver com.mysql.jdbc.Driver 
 
 printf "\n\n\nOutput of ls in root directory\n\n"
 hadoop dfs -ls /user/root
@@ -56,7 +56,7 @@ printf "\n\nTable created\n\n\n"
 
 printf "Exporting Now\n\n\n"
 
-sqoop export --connect jdbc:mysql://10.10.15.13/test --table exportedTable --driver com.mysql.jdbc.Driver --export-dir /user/root/studlog --username sql1 --password sql1
+sqoop export --username sql1 --password sql1 --connect jdbc:mysql://10.10.15.13/test --table exportedTable --m 1 --export-dir /user/root/studlog/part-m-00000 #--driver com.mysql.jdbc.Driver 
 
 printf "\n\n\nDone Exporting\n\n\n"
 
