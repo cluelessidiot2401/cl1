@@ -1,51 +1,76 @@
-################## Perform mysql operations ###############
-mysql -uroot -proot test << END_MYSQL
-show tables;
+###########################CREATE TABLE##############################
+mysql -uroot -pbigbang123 test << END_MYSQL
+
 drop table if exists studlog;
-create table  studlog(id int, name varchar(20), book varchar(20));
 
-describe studlog;
+create table studlog(id int,name varchar(10),book varchar(25));
 
-insert into studlog values(1,'John','Hadoop');
-insert into studlog values(2,'Peter','Java');
+desc studlog;
+
+insert into studlog values(1,"ABC","Java Complete Reference");
+insert into studlog values(2,"XYZ","Let Us C");
 
 select * from studlog;
 
 END_MYSQL
-echo "Done with mysql operations";
 
+printf "\n\nTable created\n\n\n"
 
-################# Import mysql table into HDFS #####################
+########################### IMPORT From MySQL ##########################
 
-echo $SQOOP_HOME
-echo "Removing hdfs file if exists "
+printf "Delete directories if they exist on hdfs\n\n\n"
 
-hadoop fs -rm -r /user/pavan/studlog
+hadoop dfs -rm /user/vikram2401/studlog/*
+hadoop dfs -rmdir /user/vikram2401/studlog
 
-sqoop import --username root --password root --connect jdbc:mysql://localhost:3306/test --table studlog --m 1
+printf "\n\nStart Import Job\n\n"
 
-hadoop fs -ls /user/pavan/
+sqoop import --username root --password bigbang123 --connect jdbc:mysql://localhost/test --table studlog --m 1 --direct
 
-echo "Mysql table imported successfully ";
+printf "\n\n\nOutput of ls in root directory\n\n"
+hadoop dfs -ls /user/vikram2401
 
+printf "\n\n\nOutput of ls in studlog directory\n\n"
+hadoop dfs -ls /user/vikram2401/studlog
 
-################# Export file from HDFS to mysql table #####################
-# for exporting file, create a empty table first. I have changed table name here
-mysql -uroot -proot test << END_MYSQL
+printf "\n\n\nImported Data:\n\n\n"
+hadoop dfs -cat /user/vikram2401/studlog/part-m-00000
+
+printf "\n\nImported Successfully\n\n\n"
+
+########################## Create Table to Hold Exported Data#############
+
+mysql -uroot -pbigbang123 test << END_MYSQL
 
 drop table if exists hdfsfiledata;
-create table hdfsfiledata (id int, name varchar(20), book varchar(20));
 
-descibe hdfsfiledata;
+create table hdfsfiledata(id int,name varchar(10),book varchar(25));
+
+desc hdfsfiledata;
 
 END_MYSQL
 
-sqoop export --connect jdbc:mysql://localhost:3306/test --table hdfsfiledata --m 1 --export-dir /user/pavan/studlog/part-m-00000
+printf "\n\nTable created\n\n\n"
 
-echo "Export successful";
+########################## Exporting Data from hdfs #######################
 
-# Check the table contents
+printf "Exporting Now\n\n\n"
 
-echo "select * from hdfsfiledata;" | mysql -uroot -proot test;
+sqoop export --username root --password bigbang123 --connect jdbc:mysql://localhost:3306/test?useSSL=false --table hdfsfiledata --m 1 --direct --export-dir /user/vikram2401/studlog/part-m-00000
 
-echo "Congratulations. Import Export done successfully";
+#sqoop export --username root --password bigbang123 --driver com.mysql.jdbc.Driver --connect jdbc:mysql://localhost:3306/test --table studlog --m 1 --export-dir /user/vikram2401/studlog
+
+#sqoop export --username root --password bigbang123 --connect jdbc:mysql://localhost/test --table exportedTable --export-dir /user/vikram2401/studlog
+
+printf "\n\n\nDone Exporting\n\n\n"
+
+########################## Show Contents of exportedTable ##################
+
+printf "Showing contents of exportedTable:\n\n"
+mysql  -uroot -pbigbang123 test << END_MYSQL
+
+select * from hdfsfiledata;
+
+END_MYSQL
+
+printf "\n\nDone\n\n\n"
